@@ -21,13 +21,27 @@ class _WrapperState extends State<Wrapper> {
   late NavBarItem _currentItem;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments as NavBarItem?;
-    _currentItem = args ?? NavBarItem.home; // Default to Home if no arguments
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments as NavBarItem?;
+      setState(() {
+        _currentItem =
+            args ?? NavBarItem.home; // Default to Home if no arguments
+      });
+    });
   }
 
-  void navigateTo(NavBarItem item) => setState(() => _currentItem = item);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  void navigateTo(NavBarItem item) {
+    if (_currentItem != item) {
+      setState(() => _currentItem = item);
+    }
+  }
 
   Map<NavBarItem, Widget> _buildScreens() {
     return {

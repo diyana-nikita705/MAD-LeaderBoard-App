@@ -1,8 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:leaderboard_app/shared/colors.dart';
+import 'package:leaderboard_app/models/students.dart'; // Import StudentService
 
-class Placement extends StatelessWidget {
+class Placement extends StatefulWidget {
   const Placement({super.key});
+
+  @override
+  State<Placement> createState() => _PlacementState();
+}
+
+class _PlacementState extends State<Placement> {
+  final TextEditingController _studentIdController = TextEditingController();
+  final StudentService _studentService = StudentService();
+  Student? _student;
+  String? _error;
+
+  void _searchStudent() async {
+    final studentId = _studentIdController.text.trim();
+    if (studentId.isEmpty) {
+      setState(() {
+        _error = "Please enter a valid Student ID.";
+        _student = null;
+      });
+      return;
+    }
+
+    try {
+      final studentDoc = await _studentService.fetchStudentById(studentId);
+      setState(() {
+        _student = studentDoc;
+        _error = null;
+      });
+    } catch (e) {
+      setState(() {
+        _error = "Student not found.";
+        _student = null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +79,7 @@ class Placement extends StatelessWidget {
                     child: SizedBox(
                       height: 48, // Set consistent height
                       child: TextField(
+                        controller: _studentIdController,
                         decoration: InputDecoration(
                           hintText: 'Enter Student ID',
                           hintStyle: const TextStyle(color: Colors.grey),
@@ -75,15 +111,35 @@ class Placement extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {
-                        // Add your search logic here
-                      },
+                      onPressed: _searchStudent, // Call search logic
                       child: const Icon(Icons.search, size: 20),
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+            if (_error != null)
+              Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_student != null)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Name: ${_student!.name}"),
+                      Text("Department: ${_student!.department}"),
+                      Text("Batch: ${_student!.batch}"),
+                      Text("Section: ${_student!.section}"),
+                      Text("Result: ${_student!.result}"),
+                      Text("Achievement: ${_student!.achievement}"),
+                      Text("Extracurricular: ${_student!.extracurricular}"),
+                      Text("Co-Curriculum: ${_student!.coCurriculum}"),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
