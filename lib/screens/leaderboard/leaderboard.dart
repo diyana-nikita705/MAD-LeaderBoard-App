@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:leaderboard_app/colors.dart'; // Import AppColors
+import 'package:leaderboard_app/shared/colors.dart'; // Import AppColors
 
 class Leaderboard extends StatelessWidget {
   const Leaderboard({super.key});

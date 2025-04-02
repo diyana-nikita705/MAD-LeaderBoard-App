@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:leaderboard_app/colors.dart';
+import 'package:leaderboard_app/shared/colors.dart';
+
+enum NavBarItem { home, placement, leaderboard, profile }
 
 class CustomBottomNavBar extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
+  final NavBarItem currentItem;
+  final ValueChanged<NavBarItem> onTap;
 
   const CustomBottomNavBar({
     super.key,
-    required this.currentIndex,
+    required this.currentItem,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: currentIndex,
+      currentIndex: NavBarItem.values.indexOf(currentItem),
       type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -31,7 +33,7 @@ class CustomBottomNavBar extends StatelessWidget {
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       onTap: (index) {
-        onTap(index); // Handle all tabs, including Profile
+        onTap(NavBarItem.values[index]); // Map index to NavBarItem
       },
     );
   }

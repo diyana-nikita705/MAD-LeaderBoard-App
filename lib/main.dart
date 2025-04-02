@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:leaderboard_app/home.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:leaderboard_app/screens/wrapper.dart'; // Import Wrapper
 
-void main() {
-  runApp(const MyApp());
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter binding is initialized
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -13,7 +21,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'LeaderBoard App',
-      home: const Home(), // Use Home from home.dart
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: Wrapper.routeName, // Set the initial route
+      routes: {
+        Wrapper.routeName:
+            (context) => const Wrapper(), // Register the wrapper route
+      },
     );
   }
 }
