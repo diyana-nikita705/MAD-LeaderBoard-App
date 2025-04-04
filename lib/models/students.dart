@@ -11,7 +11,7 @@ class Student {
   final int achievement;
   final String extracurricular;
   final String coCurriculum;
-  final DocumentSnapshot doc; // Add reference to the original DocumentSnapshot
+  final DocumentSnapshot doc; // Reference to the original DocumentSnapshot
 
   Student({
     required this.id,
@@ -23,11 +23,12 @@ class Student {
     required this.achievement,
     required this.extracurricular,
     required this.coCurriculum,
-    required this.doc, // Initialize the new field
+    required this.doc,
   });
 
+  // Factory method to create a Student object from Firestore
   factory Student.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>;
     return Student(
       id: doc.id,
       name: data['Name'] ?? '',
@@ -38,7 +39,7 @@ class Student {
       achievement: data['Achievement'] ?? 0,
       extracurricular: data['Extracurricular'] ?? 'No',
       coCurriculum: data['Co-curriculum'] ?? 'No',
-      doc: doc, // Pass the DocumentSnapshot
+      doc: doc,
     );
   }
 }
@@ -46,21 +47,23 @@ class Student {
 class StudentService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Stream to fetch all students
   Stream<List<Student>> fetchStudents() {
     return _firestore.collection('students').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) => Student.fromFirestore(doc)).toList();
     });
   }
 
+  // Fetch a single student by ID
   Future<Student?> fetchStudentById(String id) async {
     final doc = await _firestore.collection('students').doc(id).get();
     if (doc.exists) {
       return Student.fromFirestore(doc);
-    } else {
-      throw Exception("Student not found");
     }
+    throw Exception("Student not found");
   }
 
+  // Fetch students with pagination and optional filters
   Future<List<Student>> fetchStudentsPaginated(
     int limit, {
     DocumentSnapshot? lastDoc,
@@ -71,18 +74,13 @@ class StudentService {
     Query query = _firestore
         .collection('students')
         .orderBy('Result', descending: true)
-        .limit(limit); // Limit remains dynamic, passed as 20 from the caller
+        .limit(limit);
 
-    if (lastDoc != null) {
-      query = query.startAfterDocument(lastDoc);
-    }
-
+    if (lastDoc != null) query = query.startAfterDocument(lastDoc);
     if (department != null) {
       query = query.where('Department', isEqualTo: department);
     }
-    if (batch != null) {
-      query = query.where('Batch', isEqualTo: batch);
-    }
+    if (batch != null) query = query.where('Batch', isEqualTo: batch);
     if (section != null && section.isNotEmpty) {
       query = query.where('Section', isEqualTo: section.toUpperCase());
     }
@@ -92,22 +90,19 @@ class StudentService {
   }
 }
 
+// StateNotifier to manage a single student's state
 class StudentNotifier extends StateNotifier<Student?> {
   StudentNotifier() : super(null);
 
-  void setStudent(Student student) {
-    state = student;
-  }
-
-  void clearStudent() {
-    state = null;
-  }
+  void setStudent(Student student) => state = student;
+  void clearStudent() => state = null;
 }
 
 final studentProvider = StateNotifierProvider<StudentNotifier, Student?>(
   (ref) => StudentNotifier(),
 );
 
+// StateNotifier to manage leaderboard state
 class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
   LeaderboardNotifier() : super({'filteredStudents': [], 'currentRank': null});
 

@@ -18,7 +18,7 @@ class Wrapper extends StatefulWidget {
 }
 
 class _WrapperState extends State<Wrapper> {
-  late NavBarItem _currentItem;
+  NavBarItem _currentItem = NavBarItem.home; // Default to Home
 
   @override
   void initState() {

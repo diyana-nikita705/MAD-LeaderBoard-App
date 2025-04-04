@@ -15,12 +15,15 @@ class Home extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
 
-    return SingleChildScrollView(
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: Center(
+    return Scaffold(
+      backgroundColor: AppColors.primaryBgColor, // Set background color
+      body: Center(
+        child: SingleChildScrollView(
+          // Added SingleChildScrollView
+          padding: const EdgeInsets.all(16.0), // Added padding
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center, // Center content
             children: [
               _buildWelcomeText(),
               const SizedBox(height: 100),

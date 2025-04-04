@@ -19,13 +19,10 @@ class About extends StatelessWidget {
         iconTheme: const IconThemeData(color: AppColors.secondaryAccentColor),
       ),
       backgroundColor: AppColors.primaryBgColor,
-      body: Container(
-        margin: const EdgeInsets.all(
-          16.0,
-        ), // Use margin for spacing around the content
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start, // Align texts to the left
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text(
               'About LeaderBoard App',
@@ -40,7 +37,6 @@ class About extends StatelessWidget {
               'This app helps you track and manage leaderboards efficiently. '
               'It provides features like real-time updates, user-friendly UI, '
               'and customizable leaderboard settings.',
-              textAlign: TextAlign.left,
               style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
             SizedBox(height: 40),
@@ -58,13 +54,10 @@ class About extends StatelessWidget {
               'to create innovative and user-friendly mobile applications. '
               'This project focuses on enhancing development skills and delivering '
               'practical solutions to real-world problems.',
-              textAlign: TextAlign.left,
               style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
-            Spacer(), // Push contributions section to the bottom
-            Divider(
-              color: Colors.black54,
-            ), // Add a divider for better separation
+            Spacer(),
+            Divider(color: Colors.black54),
             SizedBox(height: 10),
             Text(
               'Contributions',

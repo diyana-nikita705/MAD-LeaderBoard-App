@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaderboard_app/screens/signin/sign_in.dart';
-import 'package:leaderboard_app/screens/wrapper.dart'; // Import Wrapper
-
+import 'package:leaderboard_app/screens/wrapper.dart'; // Wrapper screen
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter binding is initialized for async operations
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ); // Initialize Firebase
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    const ProviderScope(child: MyApp()),
+  ); // Use Riverpod's ProviderScope for state management
 }
 
 class MyApp extends StatelessWidget {
@@ -20,14 +23,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'LeaderBoard App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      initialRoute: Wrapper.routeName, // Set the initial route
+      debugShowCheckedModeBanner: false, // Disable debug banner
+      title: 'LeaderBoard App', // App title
+      theme: ThemeData(primarySwatch: Colors.blue), // Set theme
+      initialRoute: Wrapper.routeName, // Initial route
       routes: {
-        Wrapper.routeName:
-            (context) => const Wrapper(), // Register the wrapper route
-        '/signin': (context) => const SignIn(), // Register the sign-in route
+        Wrapper.routeName: (context) => const Wrapper(), // Wrapper route
+        '/signin': (context) => const SignIn(), // Sign-in route
       },
     );
   }
