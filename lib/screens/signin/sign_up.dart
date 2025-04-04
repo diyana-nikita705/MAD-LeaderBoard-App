@@ -80,6 +80,7 @@ class _SignUpFormState extends State<SignUpForm> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, // Disable debug banner
       routes: {'/signup': (context) => const SignUpForm()},
       home: Scaffold(
         backgroundColor: AppColors.primaryBgColor,

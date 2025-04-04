@@ -47,7 +47,7 @@ class _WrapperState extends State<Wrapper> {
     return {
       NavBarItem.home: Home(onCheckNow: () => navigateTo(NavBarItem.placement)),
       NavBarItem.placement: const Placement(),
-      NavBarItem.leaderboard: const Leaderboard(),
+      NavBarItem.leaderboard: const Leaderboard(), // Use updated Leaderboard
       NavBarItem.profile: const Profile(),
     };
   }

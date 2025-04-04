@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:leaderboard_app/screens/signin/sign_in.dart';
 import 'package:leaderboard_app/screens/wrapper.dart'; // Import Wrapper
 
 import 'package:firebase_core/firebase_core.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
       routes: {
         Wrapper.routeName:
             (context) => const Wrapper(), // Register the wrapper route
+        '/signin': (context) => const SignIn(), // Register the sign-in route
       },
     );
   }

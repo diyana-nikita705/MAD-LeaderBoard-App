@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaderboard_app/screens/profile/profileupdate.dart';
-import 'package:leaderboard_app/screens/signin/signin.dart';
+import 'package:leaderboard_app/screens/signin/sign_in.dart';
 import 'package:leaderboard_app/shared/colors.dart';
 import 'package:leaderboard_app/providers/auth_provider.dart';
 
@@ -17,7 +17,6 @@ class Profile extends ConsumerWidget {
         if (user == null) {
           return const SignIn(); // Redirect to SignIn if user is not logged in
         }
-
         // Placeholder for dynamic data
         final String profilePicture = 'assets/profile_picture.png';
         final String name = 'John Doe'; // Replace with actual name

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaderboard_app/services/auth_service.dart';
 import 'package:leaderboard_app/shared/colors.dart';
-import 'package:leaderboard_app/screens/signin/signup.dart';
+import 'package:leaderboard_app/screens/signin/sign_up.dart';
 import 'package:leaderboard_app/screens/signin/login_success.dart';
 import 'package:leaderboard_app/providers/auth_provider.dart';
 
@@ -87,6 +87,7 @@ class _SignInState extends ConsumerState<SignIn> {
           });
         }
         return MaterialApp(
+          debugShowCheckedModeBanner: false, // Disable debug banner
           routes: {'/signin': (context) => const SignIn()},
           home: Scaffold(
             backgroundColor: AppColors.primaryBgColor,

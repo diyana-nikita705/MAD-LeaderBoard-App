@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:leaderboard_app/shared/colors.dart';
-import 'package:leaderboard_app/screens/signin/signin.dart';
+import 'package:leaderboard_app/screens/signin/sign_in.dart';
 import 'package:leaderboard_app/shared/styled_button.dart';
 
 class Home extends StatelessWidget {
@@ -10,61 +10,71 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            children: [
-              const Text(
-                'Welcome to',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'LeaderBoard',
-                style: TextStyle(
-                  color: AppColors.secondaryAccentColor,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 100),
-          Row(
+    return SingleChildScrollView(
+      // Added SingleChildScrollView
+      child: SizedBox(
+        // Added Container
+        height:
+            MediaQuery.of(context).size.height, // Set height to screen height
+        child: Center(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 150, // Set fixed width for both buttons
-                child: StyledButton(
-                  backgroundColor: AppColors.secondaryAccentColor,
-                  foregroundColor: AppColors.primaryBgColor,
-                  onPressed: onCheckNow,
-                  text: 'Check Now',
-                ),
+              Column(
+                children: [
+                  const Text(
+                    'Welcome to',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'LeaderBoard',
+                    style: TextStyle(
+                      color: AppColors.secondaryAccentColor,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              SizedBox(
-                width: 150, // Set fixed width for both buttons
-                child: StyledButton(
-                  backgroundColor: AppColors.primaryBgColor,
-                  foregroundColor: AppColors.secondaryAccentColor,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SignIn()),
-                    );
-                  },
-                  text: 'Login',
-                ),
+              const SizedBox(height: 100),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 150, // Set fixed width for both buttons
+                    child: StyledButton(
+                      backgroundColor: AppColors.secondaryAccentColor,
+                      foregroundColor: AppColors.primaryBgColor,
+                      onPressed: onCheckNow,
+                      text: 'Check Now',
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 150, // Set fixed width for both buttons
+                    child: StyledButton(
+                      backgroundColor: AppColors.primaryBgColor,
+                      foregroundColor: AppColors.secondaryAccentColor,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignIn(),
+                          ),
+                        );
+                      },
+                      text: 'Login',
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

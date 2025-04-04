@@ -57,4 +57,9 @@ class AuthService {
   static Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
+
+  bool isLoggedIn() {
+    // Replace with actual authentication logic
+    return false; // Default to not logged in
+  }
 }

@@ -10,6 +10,7 @@ class Student {
   final int achievement;
   final String extracurricular;
   final String coCurriculum;
+  final DocumentSnapshot doc; // Add reference to the original DocumentSnapshot
 
   Student({
     required this.id,
@@ -21,6 +22,7 @@ class Student {
     required this.achievement,
     required this.extracurricular,
     required this.coCurriculum,
+    required this.doc, // Initialize the new field
   });
 
   factory Student.fromFirestore(DocumentSnapshot doc) {
@@ -35,6 +37,7 @@ class Student {
       achievement: data['Achievement'] ?? 0,
       extracurricular: data['Extracurricular'] ?? 'No',
       coCurriculum: data['Co-curriculum'] ?? 'No',
+      doc: doc, // Pass the DocumentSnapshot
     );
   }
 }

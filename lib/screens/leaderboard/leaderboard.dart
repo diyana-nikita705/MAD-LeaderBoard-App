@@ -2,15 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:leaderboard_app/shared/colors.dart'; // Import AppColors
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:leaderboard_app/models/students.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:leaderboard_app/providers/auth_provider.dart';
 
-class Leaderboard extends StatefulWidget {
+class Leaderboard extends ConsumerWidget {
   const Leaderboard({super.key});
 
   @override
-  State<Leaderboard> createState() => _LeaderboardState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
+    return authState.when(
+      data: (user) {
+        if (user == null) {
+          return Center(
+            child: Text(
+              'Please log in to access the leaderboard.',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+          );
+        }
+        return const _LeaderboardContent();
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(child: Text('Error: $error')),
+    );
+  }
 }
 
-class _LeaderboardState extends State<Leaderboard> {
+class _LeaderboardContent extends StatefulWidget {
+  const _LeaderboardContent();
+
+  @override
+  State<_LeaderboardContent> createState() => _LeaderboardContentState();
+}
+
+class _LeaderboardContentState extends State<_LeaderboardContent> {
   final StudentService _studentService = StudentService();
   final List<Student> _students = [];
   DocumentSnapshot? _lastDoc;
@@ -48,11 +75,9 @@ class _LeaderboardState extends State<Leaderboard> {
       setState(() {
         _students.addAll(newStudents);
         if (newStudents.isNotEmpty) {
-          _lastDoc = newStudents.last as DocumentSnapshot;
+          _lastDoc = newStudents.last.doc; // Correctly update _lastDoc
         }
       });
-    } catch (e) {
-      // Handle error
     } finally {
       setState(() {
         _isLoading = false;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:leaderboard_app/screens/signin/signin.dart';
+import 'package:leaderboard_app/screens/signin/sign_in.dart';
 import 'package:leaderboard_app/screens/signin/signinadmin.dart';
 import 'package:leaderboard_app/screens/signin/signinfaculty.dart';
 import '../../shared/colors.dart';
