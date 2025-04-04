@@ -354,7 +354,7 @@ class _ProfileState extends ConsumerState<Profile> {
                                           _buildDetailRow(
                                             'Rank',
                                             _profileRank.toString(),
-                                          ),
+                                          ), // Only display rank text
                                           _buildDetailRow(
                                             'People Ahead',
                                             _peopleAhead.toString(),
@@ -363,6 +363,69 @@ class _ProfileState extends ConsumerState<Profile> {
                                             'People Behind',
                                             _peopleBehind.toString(),
                                           ),
+                                        ],
+                                        if (_profileRank != null) ...[
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Badges',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const Divider(thickness: 1.5),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              if (_profileRank == 1) ...[
+                                                Column(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.star,
+                                                      color: Colors.yellow,
+                                                      size: 40,
+                                                    ), // Rank 1 badge
+                                                    const SizedBox(height: 4),
+                                                    const Text(
+                                                      'Rank 1',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(width: 16),
+                                              ],
+                                              if (_profileRank! <= 10) ...[
+                                                Column(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.emoji_events,
+                                                      color: Colors.orange,
+                                                      size: 40,
+                                                    ), // Top 10 badge
+                                                    const SizedBox(height: 4),
+                                                    const Text(
+                                                      'Top 10',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          const SizedBox(height: 16),
                                         ],
                                         const SizedBox(height: 16),
                                         ElevatedButton(
