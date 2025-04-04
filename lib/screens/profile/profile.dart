@@ -18,6 +18,9 @@ class _ProfileState extends ConsumerState<Profile> {
   final TextEditingController _studentIdController = TextEditingController();
   bool _isLoading = false;
   String? _error;
+  int? _profileRank; // Add a state variable to store the fetched rank
+  int? _peopleAhead;
+  int? _peopleBehind;
 
   Future<void> _fetchStudentDetails(String studentId) async {
     setState(() {
@@ -52,6 +55,45 @@ class _ProfileState extends ConsumerState<Profile> {
     }
   }
 
+  Future<void> _fetchRank(String studentId) async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('students')
+              .orderBy('Result', descending: true)
+              .get();
+
+      final students = querySnapshot.docs;
+      final rank = students.indexWhere((doc) => doc.id == studentId) + 1;
+
+      if (rank > 0) {
+        setState(() {
+          _profileRank = rank;
+          _peopleAhead = rank - 1; // People ahead are rank - 1
+          _peopleBehind =
+              students.length - rank; // People behind are total - rank
+        });
+      } else {
+        setState(() {
+          _error = 'Rank not found.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to fetch rank: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<Map<String, dynamic>?> _fetchProfileData(String studentId) async {
     try {
       final doc =
@@ -72,8 +114,6 @@ class _ProfileState extends ConsumerState<Profile> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final student = ref.watch(studentProvider);
-    final leaderboardData = ref.watch(leaderboardProvider);
-    final rank = leaderboardData['currentRank'] as int?;
 
     return authState.when(
       data: (user) {
@@ -310,11 +350,68 @@ class _ProfileState extends ConsumerState<Profile> {
                                           'CGPA',
                                           student.result.toString(),
                                         ),
-                                        if (rank != null)
+                                        if (_profileRank != null) ...[
                                           _buildDetailRow(
                                             'Rank',
-                                            rank.toString(),
+                                            _profileRank.toString(),
                                           ),
+                                          _buildDetailRow(
+                                            'People Ahead',
+                                            _peopleAhead.toString(),
+                                          ),
+                                          _buildDetailRow(
+                                            'People Behind',
+                                            _peopleBehind.toString(),
+                                          ),
+                                        ],
+                                        const SizedBox(height: 16),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors
+                                                    .transparent, // Transparent background
+                                            elevation: 0, // Remove shadow
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 8,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              side: BorderSide(
+                                                color:
+                                                    AppColors
+                                                        .secondaryAccentColor, // Border color
+                                              ),
+                                            ),
+                                          ),
+                                          onPressed:
+                                              _isLoading
+                                                  ? null
+                                                  : () {
+                                                    if (student != null) {
+                                                      _fetchRank(student.id);
+                                                    }
+                                                  },
+                                          child:
+                                              _isLoading
+                                                  ? const CircularProgressIndicator(
+                                                    color:
+                                                        AppColors
+                                                            .secondaryAccentColor,
+                                                  )
+                                                  : Text(
+                                                    'Fetch Rank',
+                                                    style: TextStyle(
+                                                      color:
+                                                          AppColors
+                                                              .secondaryAccentColor, // Text color
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                        ),
                                         const SizedBox(height: 16),
                                         const Text(
                                           'Achievements',

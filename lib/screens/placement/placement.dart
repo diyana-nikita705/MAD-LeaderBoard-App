@@ -162,7 +162,7 @@ class _PlacementState extends State<Placement> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Name: ${_student!.name}",
+                          "Name: ${(_student!.doc.data() as Map<String, dynamic>)['locked'] == true ? 'Anonymous' : _student!.name}",
                           style: const TextStyle(fontSize: 16),
                         ),
                         Text(

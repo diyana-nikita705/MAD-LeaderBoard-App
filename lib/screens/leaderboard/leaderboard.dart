@@ -315,6 +315,13 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
                                           ), // Increase left padding
                                           child: InkWell(
                                             onTap: () {
+                                              final isAnonymous =
+                                                  (student.doc.data()
+                                                      as Map<
+                                                        String,
+                                                        dynamic
+                                                      >)['locked'] ==
+                                                  true;
                                               showModalBottomSheet(
                                                 context: context,
                                                 builder: (context) {
@@ -331,7 +338,7 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
                                                               .start,
                                                       children: [
                                                         Text(
-                                                          'Details for ${student.name}',
+                                                          'Details for ${isAnonymous ? 'Anonymous' : student.name}',
                                                           style: TextStyle(
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -340,28 +347,28 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
                                                         ),
                                                         SizedBox(height: 8.0),
                                                         Text(
-                                                          'ID: ${student.id}',
+                                                          'ID: ${isAnonymous ? 'Hidden' : student.id}',
                                                         ),
                                                         Text(
-                                                          'Department: ${student.department}',
+                                                          'Department: ${isAnonymous ? 'Hidden' : student.department}',
                                                         ),
                                                         Text(
-                                                          'Batch: ${student.batch}',
+                                                          'Batch: ${isAnonymous ? 'Hidden' : student.batch}',
                                                         ),
                                                         Text(
-                                                          'Section: ${student.section}',
+                                                          'Section: ${isAnonymous ? 'Hidden' : student.section}',
                                                         ),
                                                         Text(
-                                                          'Result: ${student.result}',
+                                                          'Result: ${isAnonymous ? 'Hidden' : student.result}',
                                                         ),
                                                         Text(
-                                                          'Achievements: ${student.achievement}',
+                                                          'Achievements: ${isAnonymous ? 'Hidden' : student.achievement}',
                                                         ),
                                                         Text(
-                                                          'Extracurricular: ${student.extracurricular}',
+                                                          'Extracurricular: ${isAnonymous ? 'Hidden' : student.extracurricular}',
                                                         ),
                                                         Text(
-                                                          'Co-curriculum: ${student.coCurriculum}',
+                                                          'Co-curriculum: ${isAnonymous ? 'Hidden' : student.coCurriculum}',
                                                         ),
                                                       ],
                                                     ),
@@ -370,7 +377,14 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
                                               );
                                             },
                                             child: Text(
-                                              student.name,
+                                              (student.doc.data()
+                                                          as Map<
+                                                            String,
+                                                            dynamic
+                                                          >)['locked'] ==
+                                                      true
+                                                  ? 'Anonymous'
+                                                  : student.name,
                                               style: TextStyle(
                                                 color: Colors.black,
                                               ),
