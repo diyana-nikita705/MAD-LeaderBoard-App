@@ -6,6 +6,7 @@ import 'package:leaderboard_app/shared/colors.dart';
 import 'package:leaderboard_app/providers/auth_provider.dart';
 import 'package:leaderboard_app/models/students.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Profile extends ConsumerStatefulWidget {
   const Profile({super.key});
@@ -108,6 +109,43 @@ class _ProfileState extends ConsumerState<Profile> {
       debugPrint('Error fetching profile data: $e');
     }
     return null;
+  }
+
+  Future<void> _bindProfileToAccount(String studentId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    await FirebaseFirestore.instance
+        .collection('user_profiles')
+        .doc(user.uid)
+        .set({'profileId': studentId});
+  }
+
+  Future<void> _unbindProfileFromAccount() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    await FirebaseFirestore.instance
+        .collection('user_profiles')
+        .doc(user.uid)
+        .delete();
+
+    ref.read(studentProvider.notifier).clearStudent();
+    setState(() {
+      _profileRank = null;
+      _peopleAhead = null;
+      _peopleBehind = null;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(boundProfileProvider).whenData((profileId) {
+      if (profileId != null) {
+        _fetchStudentDetails(profileId);
+      }
+    });
   }
 
   @override
@@ -533,6 +571,71 @@ class _ProfileState extends ConsumerState<Profile> {
                                   },
                                   child: const Text(
                                     'Update Profile',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        AppColors.primaryAccentColor,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    if (student != null) {
+                                      await _bindProfileToAccount(student.id);
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Profile bound to account successfully!',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text(
+                                    'Bind Profile to Account',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.redAccent,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    await _unbindProfileFromAccount();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Profile unbound from account successfully!',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Unbind Account',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
