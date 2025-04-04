@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Student {
   final String id;
@@ -90,3 +91,43 @@ class StudentService {
     return snapshot.docs.map((doc) => Student.fromFirestore(doc)).toList();
   }
 }
+
+class StudentNotifier extends StateNotifier<Student?> {
+  StudentNotifier() : super(null);
+
+  void setStudent(Student student) {
+    state = student;
+  }
+
+  void clearStudent() {
+    state = null;
+  }
+}
+
+final studentProvider = StateNotifierProvider<StudentNotifier, Student?>(
+  (ref) => StudentNotifier(),
+);
+
+class LeaderboardNotifier extends StateNotifier<Map<String, dynamic>> {
+  LeaderboardNotifier() : super({'filteredStudents': [], 'currentRank': null});
+
+  void updateLeaderboard(List<Student> filteredStudents, String? studentId) {
+    state = {
+      'filteredStudents': filteredStudents,
+      'currentRank': _calculateRank(filteredStudents, studentId),
+    };
+  }
+
+  int? _calculateRank(List<Student> students, String? studentId) {
+    if (studentId == null) return null;
+    final rank = students.indexWhere((student) => student.id == studentId);
+    return rank != -1
+        ? rank + 1
+        : null; // Convert 0-based index to 1-based rank
+  }
+}
+
+final leaderboardProvider =
+    StateNotifierProvider<LeaderboardNotifier, Map<String, dynamic>>(
+      (ref) => LeaderboardNotifier(),
+    );

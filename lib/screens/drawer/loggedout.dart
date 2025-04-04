@@ -18,7 +18,11 @@ class LoggedOutScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/wrapper',
+                  (route) => false,
+                );
               },
               child: const Text('Go Back'),
             ),

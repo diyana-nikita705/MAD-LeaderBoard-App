@@ -14,6 +14,7 @@ class _PlacementState extends State<Placement> {
   final StudentService _studentService = StudentService();
   Student? _student;
   String? _error;
+  int? _rank;
 
   void _searchStudent() async {
     final studentId = _studentIdController.text.trim();
@@ -21,20 +22,39 @@ class _PlacementState extends State<Placement> {
       setState(() {
         _error = "Please enter a valid Student ID.";
         _student = null;
+        _rank = null;
       });
       return;
     }
 
     try {
       final studentDoc = await _studentService.fetchStudentById(studentId);
-      setState(() {
-        _student = studentDoc;
-        _error = null;
-      });
+      if (studentDoc != null) {
+        // Fetch leaderboard data dynamically
+        final leaderboard = await _studentService.fetchStudentsPaginated(100);
+        final rank = leaderboard.indexWhere(
+          (student) => student.id == studentId,
+        );
+        setState(() {
+          _student = studentDoc;
+          _rank =
+              rank != -1
+                  ? rank + 1
+                  : null; // Convert 0-based index to 1-based rank
+          _error = null;
+        });
+      } else {
+        setState(() {
+          _error = "Student not found.";
+          _student = null;
+          _rank = null;
+        });
+      }
     } catch (e) {
       setState(() {
-        _error = "Student not found.";
+        _error = "Failed to fetch student details.";
         _student = null;
+        _rank = null;
       });
     }
   }
@@ -142,6 +162,7 @@ class _PlacementState extends State<Placement> {
                           Text("Achievement: ${_student!.achievement}"),
                           Text("Extracurricular: ${_student!.extracurricular}"),
                           Text("Co-Curriculum: ${_student!.coCurriculum}"),
+                          if (_rank != null) Text("Rank: $_rank"),
                         ],
                       ),
                     ),

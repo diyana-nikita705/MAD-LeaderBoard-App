@@ -30,14 +30,15 @@ class Leaderboard extends ConsumerWidget {
   }
 }
 
-class _LeaderboardContent extends StatefulWidget {
+class _LeaderboardContent extends ConsumerStatefulWidget {
   const _LeaderboardContent();
 
   @override
-  State<_LeaderboardContent> createState() => _LeaderboardContentState();
+  ConsumerState<_LeaderboardContent> createState() =>
+      _LeaderboardContentState();
 }
 
-class _LeaderboardContentState extends State<_LeaderboardContent> {
+class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
   final StudentService _studentService = StudentService();
   final List<Student> _students = [];
   DocumentSnapshot? _lastDoc;
@@ -78,6 +79,12 @@ class _LeaderboardContentState extends State<_LeaderboardContent> {
           _lastDoc = newStudents.last.doc; // Correctly update _lastDoc
         }
       });
+
+      // Notify the LeaderboardNotifier about the filtered leaderboard
+      final userId = ref.read(studentProvider)?.id;
+      ref
+          .read(leaderboardProvider.notifier)
+          .updateLeaderboard(_students, userId);
     } finally {
       setState(() {
         _isLoading = false;
