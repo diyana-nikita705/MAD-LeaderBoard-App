@@ -16,7 +16,10 @@ class CustomDrawer extends ConsumerWidget {
     final authState = ref.watch(authProvider);
 
     return authState.when(
-      data: (user) => _buildDrawer(context, user),
+      data: (authData) {
+        final user = authData?['user'] as AppUser?;
+        return _buildDrawer(context, user);
+      },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => Center(child: Text('Error: $error')),
     );

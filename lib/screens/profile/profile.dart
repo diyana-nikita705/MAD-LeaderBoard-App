@@ -7,6 +7,7 @@ import 'package:leaderboard_app/providers/auth_provider.dart';
 import 'package:leaderboard_app/models/students.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:leaderboard_app/models/app_user.dart'; // Import AppUser
 
 class Profile extends ConsumerStatefulWidget {
   const Profile({super.key});
@@ -125,27 +126,32 @@ class _ProfileState extends ConsumerState<Profile> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    // Clear the profileId in the database
     await FirebaseFirestore.instance
         .collection('user_profiles')
         .doc(user.uid)
-        .delete();
+        .set({'profileId': null});
 
+    // Clear the profile state and update the UI
     ref.read(studentProvider.notifier).clearStudent();
     setState(() {
       _profileRank = null;
       _peopleAhead = null;
       _peopleBehind = null;
+      _error = null; // Clear any existing error messages
     });
+
+    // Show a confirmation message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Profile unbound from account successfully!'),
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    ref.read(boundProfileProvider).whenData((profileId) {
-      if (profileId != null) {
-        _fetchStudentDetails(profileId);
-      }
-    });
   }
 
   @override
@@ -153,8 +159,31 @@ class _ProfileState extends ConsumerState<Profile> {
     final authState = ref.watch(authProvider);
     final student = ref.watch(studentProvider);
 
+    // Ensure the UI reflects the cleared profile state
+    if (student == null) {
+      _profileRank = null;
+      _peopleAhead = null;
+      _peopleBehind = null;
+    }
+
+    // Move ref.listen here
+    ref.listen<AsyncValue<Map<String, dynamic>?>>(authProvider, (
+      previous,
+      next,
+    ) {
+      next.whenData((authData) {
+        final profileId = authData?['profileId'] as String?;
+        if (profileId != null && student == null) {
+          _fetchStudentDetails(profileId);
+        }
+      });
+    });
+
     return authState.when(
-      data: (user) {
+      data: (authData) {
+        final user = authData?['user'] as AppUser?;
+        final profileId = authData?['profileId'] as String?;
+
         if (user == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ref
@@ -162,6 +191,10 @@ class _ProfileState extends ConsumerState<Profile> {
                 .clearStudent(); // Clear profile on logout
           });
           return const SignIn(); // Redirect to SignIn if user is not logged in
+        }
+
+        if (profileId != null && student == null) {
+          _fetchStudentDetails(profileId);
         }
 
         return FutureBuilder<Map<String, dynamic>?>(

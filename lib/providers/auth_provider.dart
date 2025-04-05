@@ -4,12 +4,31 @@ import 'package:leaderboard_app/models/app_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // StreamProvider to monitor authentication state
-final authProvider = StreamProvider.autoDispose<AppUser?>((ref) async* {
-  final authStream = FirebaseAuth.instance.authStateChanges().map((user) {
-    return user != null ? AppUser(uid: user.uid, email: user.email!) : null;
+final authProvider = StreamProvider.autoDispose<Map<String, dynamic>?>((
+  ref,
+) async* {
+  final authStream = FirebaseAuth.instance.authStateChanges().asyncMap((
+    user,
+  ) async {
+    if (user != null) {
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('user_profiles')
+              .doc(user.uid)
+              .get();
+      final profileId =
+          doc.exists && doc.data() != null
+              ? doc.data()!['profileId'] as String?
+              : null;
+      return {
+        'user': AppUser(uid: user.uid, email: user.email!),
+        'profileId': profileId,
+      };
+    }
+    return null;
   });
-  await for (final user in authStream) {
-    yield user;
+  await for (final data in authStream) {
+    yield data;
   }
 });
 

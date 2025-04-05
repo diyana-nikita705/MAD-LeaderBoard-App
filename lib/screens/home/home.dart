@@ -60,8 +60,9 @@ class Home extends ConsumerWidget {
 
   Widget _buildActionButtons(
     BuildContext context,
-    AsyncValue<AppUser?> authState,
+    AsyncValue<Map<String, dynamic>?> authState,
   ) {
+    final user = authState.asData?.value?['user'] as AppUser?;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -72,7 +73,7 @@ class Home extends ConsumerWidget {
           onPressed: onCheckNow,
         ),
         const SizedBox(width: 10),
-        if (authState.asData?.value == null)
+        if (user == null)
           _buildStyledButton(
             text: 'Login',
             backgroundColor: AppColors.primaryBgColor,
