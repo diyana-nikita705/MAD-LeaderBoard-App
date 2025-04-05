@@ -9,11 +9,6 @@ The **LeaderBoard App** is a Flutter application designed to manage and display 
 - **Firebase Integration**: Uses Firebase for authentication and data storage.
 - **State Management**: Powered by Riverpod for efficient state handling.
 
-## Screens
-
-- **Wrapper Screen**: Determines the initial screen based on user authentication status.
-- **Sign-In Screen**: Allows users to sign in to the app.
-
 ## Technologies Used
 
 - **Flutter**: For building the cross-platform app.
