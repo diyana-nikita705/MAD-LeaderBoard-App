@@ -416,9 +416,11 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
                 ),
               ),
               if (_isLoading)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
                 ),
             ],
           ),

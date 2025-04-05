@@ -24,6 +24,7 @@ class _ProfileState extends ConsumerState<Profile> {
   int? _peopleAhead;
   int? _peopleBehind;
   bool _isProfileUnbound = false; // Add a flag to track unbinding
+  bool _isRankFetched = false; // Add a flag to track if rank is fetched
 
   Future<void> _fetchStudentDetails(String studentId) async {
     setState(() {
@@ -62,6 +63,7 @@ class _ProfileState extends ConsumerState<Profile> {
     setState(() {
       _isLoading = true;
       _error = null;
+      _isRankFetched = false; // Reset the flag before fetching
     });
 
     try {
@@ -80,6 +82,7 @@ class _ProfileState extends ConsumerState<Profile> {
           _peopleAhead = rank - 1; // People ahead are rank - 1
           _peopleBehind =
               students.length - rank; // People behind are total - rank
+          _isRankFetched = true; // Set the flag to true after fetching
         });
       } else {
         setState(() {
@@ -440,7 +443,8 @@ class _ProfileState extends ConsumerState<Profile> {
                                             _peopleBehind.toString(),
                                           ),
                                         ],
-                                        if (_profileRank != null) ...[
+                                        if (_profileRank != null &&
+                                            _isRankFetched) ...[
                                           const SizedBox(height: 16),
                                           const Text(
                                             'Badges',
@@ -478,17 +482,21 @@ class _ProfileState extends ConsumerState<Profile> {
                                                 ),
                                                 const SizedBox(width: 16),
                                               ],
-                                              if (_profileRank! <= 10) ...[
+                                              if (_profileRank! <=
+                                                  (_peopleAhead! +
+                                                          _peopleBehind! +
+                                                          1) *
+                                                      0.1) ...[
                                                 Column(
                                                   children: [
                                                     Icon(
                                                       Icons.emoji_events,
                                                       color: Colors.orange,
                                                       size: 40,
-                                                    ), // Top 10 badge
+                                                    ), // Top 10% badge
                                                     const SizedBox(height: 4),
                                                     const Text(
-                                                      'Top 10',
+                                                      'Top 10%',
                                                       style: TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
@@ -504,53 +512,59 @@ class _ProfileState extends ConsumerState<Profile> {
                                           const SizedBox(height: 16),
                                         ],
                                         const SizedBox(height: 16),
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                Colors
-                                                    .transparent, // Transparent background
-                                            elevation: 0, // Remove shadow
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 8,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              side: BorderSide(
-                                                color:
-                                                    AppColors
-                                                        .secondaryAccentColor, // Border color
-                                              ),
-                                            ),
-                                          ),
-                                          onPressed:
-                                              _isLoading
-                                                  ? null
-                                                  : () {
-                                                    if (student != null) {
-                                                      _fetchRank(student.id);
-                                                    }
-                                                  },
-                                          child:
-                                              _isLoading
-                                                  ? const CircularProgressIndicator(
+                                        if (!_isRankFetched) // Only show the button if rank is not fetched
+                                          Center(
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors
+                                                        .transparent, // Transparent background
+                                                elevation: 0, // Remove shadow
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  side: BorderSide(
                                                     color:
                                                         AppColors
-                                                            .secondaryAccentColor,
-                                                  )
-                                                  : Text(
-                                                    'Fetch Rank',
-                                                    style: TextStyle(
-                                                      color:
-                                                          AppColors
-                                                              .secondaryAccentColor, // Text color
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
+                                                            .secondaryAccentColor, // Border color
                                                   ),
-                                        ),
+                                                ),
+                                              ),
+                                              onPressed:
+                                                  _isLoading
+                                                      ? null
+                                                      : () {
+                                                        if (student != null) {
+                                                          _fetchRank(
+                                                            student.id,
+                                                          );
+                                                        }
+                                                      },
+                                              child:
+                                                  _isLoading
+                                                      ? const CircularProgressIndicator(
+                                                        color:
+                                                            AppColors
+                                                                .secondaryAccentColor,
+                                                      )
+                                                      : Text(
+                                                        'Fetch Rank',
+                                                        style: TextStyle(
+                                                          color:
+                                                              AppColors
+                                                                  .secondaryAccentColor, // Text color
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                            ),
+                                          ),
                                         const SizedBox(height: 16),
                                         const Text(
                                           'Achievements',
