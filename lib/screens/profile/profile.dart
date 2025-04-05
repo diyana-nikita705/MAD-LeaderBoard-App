@@ -122,8 +122,8 @@ class _ProfileState extends ConsumerState<Profile> {
         .doc(user.uid)
         .set({'profileId': studentId});
 
-    // Refresh authProvider to update button state
-    ref.refresh(authProvider);
+    // Explicitly ignore the return value of refresh
+    ref.refresh(authProvider); // ignore: unused_result
   }
 
   Future<void> _unbindProfileFromAccount() async {
@@ -146,8 +146,8 @@ class _ProfileState extends ConsumerState<Profile> {
       _isProfileUnbound = true; // Set the unbound flag
     });
 
-    // Refresh authProvider to update button state
-    ref.refresh(authProvider);
+    // Explicitly ignore the return value of refresh
+    ref.refresh(authProvider); // ignore: unused_result
   }
 
   @override
