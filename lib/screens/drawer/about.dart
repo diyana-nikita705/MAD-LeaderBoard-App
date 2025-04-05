@@ -77,7 +77,7 @@ class About extends StatelessWidget {
               ),
             ),
             Text(
-              'Anzir Rahman Khan and Team',
+              'Will be added later.',
               style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
             SizedBox(height: 10),
@@ -90,7 +90,7 @@ class About extends StatelessWidget {
               ),
             ),
             Text(
-              'Anzir Rahman Khan',
+              'Will be added later.',
               style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
           ],

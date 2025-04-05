@@ -23,6 +23,7 @@ class _ProfileState extends ConsumerState<Profile> {
   int? _profileRank; // Add a state variable to store the fetched rank
   int? _peopleAhead;
   int? _peopleBehind;
+  bool _isProfileUnbound = false; // Add a flag to track unbinding
 
   Future<void> _fetchStudentDetails(String studentId) async {
     setState(() {
@@ -120,6 +121,9 @@ class _ProfileState extends ConsumerState<Profile> {
         .collection('user_profiles')
         .doc(user.uid)
         .set({'profileId': studentId});
+
+    // Refresh authProvider to update button state
+    ref.refresh(authProvider);
   }
 
   Future<void> _unbindProfileFromAccount() async {
@@ -139,14 +143,11 @@ class _ProfileState extends ConsumerState<Profile> {
       _peopleAhead = null;
       _peopleBehind = null;
       _error = null; // Clear any existing error messages
+      _isProfileUnbound = true; // Set the unbound flag
     });
 
-    // Show a confirmation message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile unbound from account successfully!'),
-      ),
-    );
+    // Refresh authProvider to update button state
+    ref.refresh(authProvider);
   }
 
   @override
@@ -173,7 +174,11 @@ class _ProfileState extends ConsumerState<Profile> {
     ) {
       next.whenData((authData) {
         final profileId = authData?['profileId'] as String?;
-        if (profileId != null && student == null) {
+        final currentUserUid = authData?['user']?.uid as String?;
+        if (profileId != null &&
+            student == null &&
+            currentUserUid != null &&
+            !_isProfileUnbound) {
           _fetchStudentDetails(profileId);
         }
       });
@@ -611,68 +616,118 @@ class _ProfileState extends ConsumerState<Profile> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppColors.primaryAccentColor,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0,
                                   ),
-                                  onPressed: () async {
-                                    if (student != null) {
-                                      await _bindProfileToAccount(student.id);
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Profile bound to account successfully!',
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      if (authData?['profileId'] == null) ...[
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.primaryAccentColor,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            if (student != null) {
+                                              await _bindProfileToAccount(
+                                                student.id,
+                                              );
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Profile bound to account successfully!',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: const Text(
+                                            'Bind Profile to Account',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            ),
                                           ),
                                         ),
-                                      );
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Bind Profile to Account',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.redAccent,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    await _unbindProfileFromAccount();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Profile unbound from account successfully!',
+                                        const SizedBox(height: 16),
+                                      ],
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              student != null
+                                                  ? Colors.redAccent
+                                                  : AppColors
+                                                      .primaryAccentColor,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () async {
+                                          if (student != null) {
+                                            if (authData?['profileId'] !=
+                                                null) {
+                                              await _unbindProfileFromAccount();
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Profile unbound from account successfully!',
+                                                  ),
+                                                ),
+                                              );
+                                            } else {
+                                              ref
+                                                  .read(
+                                                    studentProvider.notifier,
+                                                  )
+                                                  .clearStudent();
+                                              setState(() {
+                                                _profileRank = null;
+                                                _peopleAhead = null;
+                                                _peopleBehind = null;
+                                                _error = null;
+                                              });
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Profile unloaded successfully!',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
+                                        child: Text(
+                                          authData?['profileId'] != null
+                                              ? 'Unbind Account'
+                                              : 'Unload Profile',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                       ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Unbind Account',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(
