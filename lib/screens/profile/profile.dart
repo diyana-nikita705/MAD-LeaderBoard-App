@@ -582,7 +582,8 @@ class _ProfileState extends ConsumerState<Profile> {
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
-                                        AppColors.primaryAccentColor,
+                                        AppColors
+                                            .secondaryAccentColor, // Use secondary accent color
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 32,
                                       vertical: 14,
@@ -610,7 +611,9 @@ class _ProfileState extends ConsumerState<Profile> {
                                   child: const Text(
                                     'Update Profile',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color:
+                                          Colors
+                                              .white, // White text for contrast
                                       fontSize: 16,
                                     ),
                                   ),
