@@ -20,9 +20,16 @@ final authProvider = StreamProvider.autoDispose<Map<String, dynamic>?>((
           doc.exists && doc.data() != null
               ? doc.data()!['profileId'] as String?
               : null;
+
+      if (profileId == null || profileId.isEmpty) {
+      }
+
       return {
         'user': AppUser(uid: user.uid, email: user.email!),
-        'profileId': profileId,
+        'profileId':
+            profileId?.isNotEmpty == true
+                ? profileId
+                : null, // Ensure profileId is valid
       };
     }
     return null;

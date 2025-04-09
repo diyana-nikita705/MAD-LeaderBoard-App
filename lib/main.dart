@@ -4,6 +4,7 @@ import 'package:leaderboard_app/screens/signin/sign_in.dart';
 import 'package:leaderboard_app/screens/wrapper.dart'; // Wrapper screen
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:leaderboard_app/screens/drawer/faculty.dart'; // Import FacultyScreen
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter binding is initialized for async operations
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
       routes: {
         Wrapper.routeName: (context) => const Wrapper(), // Wrapper route
         '/signin': (context) => const SignIn(), // Sign-in route
+        '/faculty': (context) => const FacultyScreen(), // Faculty route
       },
     );
   }
