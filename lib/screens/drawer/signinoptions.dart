@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:leaderboard_app/screens/signin/sign_in.dart';
 import 'package:leaderboard_app/screens/signin/signinadmin.dart';
-import 'package:leaderboard_app/screens/signin/signinfaculty.dart';
 import '../../shared/colors.dart';
 
 class SignInOptions extends StatelessWidget {
@@ -42,19 +41,14 @@ class SignInOptions extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SignInFaculty(),
-                  ),
-                );
+                Navigator.pushNamed(context, '/faculty');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondaryAccentColor,
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               ),
               child: Text(
-                'Faculty Login',
+                'Access Faculty',
                 style: TextStyle(
                   color: AppColors.secondaryTextColor,
                   fontWeight: FontWeight.bold,

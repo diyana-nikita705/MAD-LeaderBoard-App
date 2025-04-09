@@ -35,11 +35,54 @@ class Student {
       department: data['Department'] ?? '',
       batch: data['Batch'] ?? 0,
       section: data['Section'] ?? '',
-      result: (data['Result'] ?? 0.0).toDouble(),
+      result: _parseDouble(data['Result']), // Use helper method for conversion
       achievement: data['Achievement'] ?? 0,
       extracurricular: data['Extracurricular'] ?? 'No',
       coCurriculum: data['Co-curriculum'] ?? 'No',
       doc: doc,
+    );
+  }
+
+  // Helper method to safely parse a value to double
+  static double _parseDouble(dynamic value) {
+    if (value is double) {
+      return value;
+    } else if (value is int) {
+      return value.toDouble();
+    } else if (value is String) {
+      final parsedValue = double.tryParse(value);
+      if (parsedValue != null) {
+        return parsedValue;
+      } else {
+        return 0.0; // Default to 0.0 if parsing fails
+      }
+    }
+    return 0.0; // Default to 0.0 for unsupported types
+  }
+
+  Student copyWith({
+    String? id,
+    String? name,
+    String? department,
+    int? batch,
+    String? section,
+    double? result,
+    int? achievement,
+    String? extracurricular,
+    String? coCurriculum,
+    DocumentSnapshot? doc,
+  }) {
+    return Student(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      department: department ?? this.department,
+      batch: batch ?? this.batch,
+      section: section ?? this.section,
+      result: result ?? this.result,
+      achievement: achievement ?? this.achievement,
+      extracurricular: extracurricular ?? this.extracurricular,
+      coCurriculum: coCurriculum ?? this.coCurriculum,
+      doc: doc ?? this.doc,
     );
   }
 }
@@ -56,11 +99,19 @@ class StudentService {
 
   // Fetch a single student by ID
   Future<Student?> fetchStudentById(String id) async {
-    final doc = await _firestore.collection('students').doc(id).get();
-    if (doc.exists) {
-      return Student.fromFirestore(doc);
+    try {
+      // Log the student ID
+      final doc = await _firestore.collection('students').doc(id).get();
+      if (doc.exists) {
+        // Log the fetched data
+        return Student.fromFirestore(doc);
+      }
+      // Log if student is not found
+      throw Exception("Student with ID $id not found");
+    } catch (e) {
+      // Log error and stack trace
+      throw Exception("Failed to fetch student data. Please try again later.");
     }
-    throw Exception("Student not found");
   }
 
   // Fetch students with pagination and optional filters
@@ -71,22 +122,28 @@ class StudentService {
     int? batch,
     String? section,
   }) async {
-    Query query = _firestore
-        .collection('students')
-        .orderBy('Result', descending: true)
-        .limit(limit);
+    try {
+      Query query = _firestore
+          .collection('students')
+          .orderBy('Result', descending: true)
+          .limit(limit);
 
-    if (lastDoc != null) query = query.startAfterDocument(lastDoc);
-    if (department != null) {
-      query = query.where('Department', isEqualTo: department);
-    }
-    if (batch != null) query = query.where('Batch', isEqualTo: batch);
-    if (section != null && section.isNotEmpty) {
-      query = query.where('Section', isEqualTo: section.toUpperCase());
-    }
+      if (lastDoc != null) query = query.startAfterDocument(lastDoc);
+      if (department != null) {
+        query = query.where('Department', isEqualTo: department);
+      }
+      if (batch != null) query = query.where('Batch', isEqualTo: batch);
+      if (section != null && section.isNotEmpty) {
+        query = query.where('Section', isEqualTo: section.toUpperCase());
+      }
 
-    final snapshot = await query.get();
-    return snapshot.docs.map((doc) => Student.fromFirestore(doc)).toList();
+      final snapshot = await query.get();
+      // Log the number of students fetched
+      return snapshot.docs.map((doc) => Student.fromFirestore(doc)).toList();
+    } catch (e) {
+      // Log error and stack trace
+      throw Exception("Failed to fetch students. Please try again later.");
+    }
   }
 }
 

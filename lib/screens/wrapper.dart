@@ -58,7 +58,19 @@ class _WrapperState extends State<Wrapper> {
       backgroundColor: AppColors.primaryBgColor,
       appBar: const CustomAppBar(),
       drawer: const CustomDrawer(),
-      body: _buildScreens()[_currentItem],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/bg-pattern.png'),
+            fit: BoxFit.none, // Do not stretch the pattern
+            repeat: ImageRepeat.repeat, // Repeat the pattern
+            opacity: 0.2, // Increase transparency
+            scale:
+                3.0, // Make the pattern smaller (higher value = smaller pattern)
+          ),
+        ),
+        child: _buildScreens()[_currentItem],
+      ),
       bottomNavigationBar: CustomBottomNavBar(
         currentItem: _currentItem,
         onTap: navigateTo,

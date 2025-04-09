@@ -214,217 +214,232 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryBgColor, // Set background color
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter, // Align the table to the top
-                  child: Padding(
-                    padding: EdgeInsets.zero, // Remove padding
-                    child: SingleChildScrollView(
-                      scrollDirection:
-                          Axis.horizontal, // Enable horizontal scrolling
-                      child: SizedBox(
-                        width:
-                            MediaQuery.of(
-                              context,
-                            ).size.width, // Stretch to full width
-                        child: SingleChildScrollView(
-                          scrollDirection:
-                              Axis.vertical, // Enable vertical scrolling
-                          child: DataTable(
-                            columnSpacing:
-                                16.0, // Adjust spacing between columns
-                            headingRowColor: WidgetStateProperty.all(
-                              AppColors
-                                  .secondaryAccentColor, // Set heading row color
-                            ),
-                            dataRowColor: WidgetStateProperty.all(
-                              AppColors
-                                  .primaryBgColor, // Set data row background color
-                            ),
-                            columns: const [
-                              DataColumn(
-                                label: Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 8.0,
-                                  ), // Add left padding
-                                  child: Text(
-                                    'Rank',
-                                    style: TextStyle(
-                                      color: Colors.white, // Set text color
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+              'assets/bg-pattern.png',
+            ), // Add background pattern
+            fit: BoxFit.none, // Make the pattern smaller
+            repeat: ImageRepeat.repeat, // Repeat the pattern
+            opacity: 0.2, // Increase transparency
+            scale: 3.0, // Scale down the pattern
+          ),
+        ),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment:
+                        Alignment.topCenter, // Align the table to the top
+                    child: Padding(
+                      padding: EdgeInsets.zero, // Remove padding
+                      child: SingleChildScrollView(
+                        scrollDirection:
+                            Axis.horizontal, // Enable horizontal scrolling
+                        child: SizedBox(
+                          width:
+                              MediaQuery.of(
+                                context,
+                              ).size.width, // Stretch to full width
+                          child: SingleChildScrollView(
+                            scrollDirection:
+                                Axis.vertical, // Enable vertical scrolling
+                            child: DataTable(
+                              columnSpacing:
+                                  16.0, // Adjust spacing between columns
+                              headingRowColor: WidgetStateProperty.all(
+                                AppColors
+                                    .secondaryAccentColor, // Set heading row color
                               ),
-                              DataColumn(
-                                label: Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 16.0,
-                                  ), // Increase left padding for Name
-                                  child: Text(
-                                    'Name',
-                                    style: TextStyle(
-                                      color: Colors.white, // Set text color
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
+                              dataRowColor: WidgetStateProperty.all(
+                                AppColors
+                                    .primaryBgColor, // Set data row background color
                               ),
-                              DataColumn(
-                                label: Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 8.0,
-                                  ), // Add left padding
-                                  child: Text(
-                                    'CGPA',
-                                    style: TextStyle(
-                                      color: Colors.white, // Set text color
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            rows:
-                                _students.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final student = entry.value;
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 16.0,
-                                          ), // Increase left padding
-                                          child: Text(
-                                            '${index + 1}',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ),
+                              columns: const [
+                                DataColumn(
+                                  label: Padding(
+                                    padding: EdgeInsets.only(
+                                      left: 8.0,
+                                    ), // Add left padding
+                                    child: Text(
+                                      'Rank',
+                                      style: TextStyle(
+                                        color: Colors.white, // Set text color
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      DataCell(
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 16.0,
-                                          ), // Increase left padding
-                                          child: InkWell(
-                                            onTap: () {
-                                              final isAnonymous =
-                                                  (student.doc.data()
-                                                      as Map<
-                                                        String,
-                                                        dynamic
-                                                      >)['locked'] ==
-                                                  true;
-                                              showModalBottomSheet(
-                                                context: context,
-                                                builder: (context) {
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          16.0,
-                                                        ),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Details for ${isAnonymous ? 'Anonymous' : student.name}',
-                                                          style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 18.0,
-                                                          ),
-                                                        ),
-                                                        SizedBox(height: 8.0),
-                                                        Text(
-                                                          'ID: ${isAnonymous ? 'Hidden' : student.id}',
-                                                        ),
-                                                        Text(
-                                                          'Department: ${isAnonymous ? 'Hidden' : student.department}',
-                                                        ),
-                                                        Text(
-                                                          'Batch: ${isAnonymous ? 'Hidden' : student.batch}',
-                                                        ),
-                                                        Text(
-                                                          'Section: ${isAnonymous ? 'Hidden' : student.section}',
-                                                        ),
-                                                        Text(
-                                                          'Result: ${isAnonymous ? 'Hidden' : student.result}',
-                                                        ),
-                                                        Text(
-                                                          'Achievements: ${isAnonymous ? 'Hidden' : student.achievement}',
-                                                        ),
-                                                        Text(
-                                                          'Extracurricular: ${isAnonymous ? 'Hidden' : student.extracurricular}',
-                                                        ),
-                                                        Text(
-                                                          'Co-curriculum: ${isAnonymous ? 'Hidden' : student.coCurriculum}',
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            },
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Padding(
+                                    padding: EdgeInsets.only(
+                                      left: 16.0,
+                                    ), // Increase left padding for Name
+                                    child: Text(
+                                      'Name',
+                                      style: TextStyle(
+                                        color: Colors.white, // Set text color
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Padding(
+                                    padding: EdgeInsets.only(
+                                      left: 8.0,
+                                    ), // Add left padding
+                                    child: Text(
+                                      'CGPA',
+                                      style: TextStyle(
+                                        color: Colors.white, // Set text color
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              rows:
+                                  _students.asMap().entries.map((entry) {
+                                    final index = entry.key;
+                                    final student = entry.value;
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 16.0,
+                                            ), // Increase left padding
                                             child: Text(
-                                              (student.doc.data()
-                                                          as Map<
-                                                            String,
-                                                            dynamic
-                                                          >)['locked'] ==
-                                                      true
-                                                  ? 'Anonymous'
-                                                  : student.name,
+                                              '${index + 1}',
                                               style: TextStyle(
                                                 color: Colors.black,
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      DataCell(
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            left: 16.0,
-                                          ), // Increase left padding
-                                          child: Text(
-                                            student.result.toString(),
-                                            style: TextStyle(
-                                              color: Colors.black,
+                                        DataCell(
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 16.0,
+                                            ), // Increase left padding
+                                            child: InkWell(
+                                              onTap: () {
+                                                final isAnonymous =
+                                                    (student.doc.data()
+                                                        as Map<
+                                                          String,
+                                                          dynamic
+                                                        >)['locked'] ==
+                                                    true;
+                                                showModalBottomSheet(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            16.0,
+                                                          ),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            'Details for ${isAnonymous ? 'Anonymous' : student.name}',
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 18.0,
+                                                            ),
+                                                          ),
+                                                          SizedBox(height: 8.0),
+                                                          Text(
+                                                            'ID: ${isAnonymous ? 'Hidden' : student.id}',
+                                                          ),
+                                                          Text(
+                                                            'Department: ${isAnonymous ? 'Hidden' : student.department}',
+                                                          ),
+                                                          Text(
+                                                            'Batch: ${isAnonymous ? 'Hidden' : student.batch}',
+                                                          ),
+                                                          Text(
+                                                            'Section: ${isAnonymous ? 'Hidden' : student.section}',
+                                                          ),
+                                                          Text(
+                                                            'Result: ${isAnonymous ? 'Hidden' : student.result}',
+                                                          ),
+                                                          Text(
+                                                            'Achievements: ${isAnonymous ? 'Hidden' : student.achievement}',
+                                                          ),
+                                                          Text(
+                                                            'Extracurricular: ${isAnonymous ? 'Hidden' : student.extracurricular}',
+                                                          ),
+                                                          Text(
+                                                            'Co-curriculum: ${isAnonymous ? 'Hidden' : student.coCurriculum}',
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              child: Text(
+                                                (student.doc.data()
+                                                            as Map<
+                                                              String,
+                                                              dynamic
+                                                            >)['locked'] ==
+                                                        true
+                                                    ? 'Anonymous'
+                                                    : student.name,
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
+                                        DataCell(
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 16.0,
+                                            ), // Increase left padding
+                                            child: Text(
+                                              student.result.toString(),
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              if (_isLoading)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
+                if (_isLoading)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
-                ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
       floatingActionButton: Stack(
         children: [

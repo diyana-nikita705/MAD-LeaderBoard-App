@@ -5,6 +5,7 @@ import 'package:leaderboard_app/shared/colors.dart';
 import 'package:leaderboard_app/screens/drawer/about.dart';
 import 'package:leaderboard_app/screens/drawer/signinoptions.dart';
 import 'package:leaderboard_app/screens/drawer/loggedout.dart';
+import 'package:leaderboard_app/screens/drawer/faculty.dart';
 import 'package:leaderboard_app/services/auth_service.dart';
 import 'package:leaderboard_app/providers/auth_provider.dart';
 
@@ -42,6 +43,18 @@ class CustomDrawer extends ConsumerWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const SignInOptions(),
+                  ),
+                );
+              },
+            ),
+            _buildMenuItem(
+              icon: Icons.school,
+              text: 'Faculty',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FacultyScreen(),
                   ),
                 );
               },

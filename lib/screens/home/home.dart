@@ -17,18 +17,31 @@ class Home extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryBgColor, // Set background color
-      body: Center(
-        child: SingleChildScrollView(
-          // Added SingleChildScrollView
-          padding: const EdgeInsets.all(16.0), // Added padding
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center, // Center content
-            children: [
-              _buildWelcomeText(),
-              const SizedBox(height: 100),
-              _buildActionButtons(context, authState),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+              'assets/bg-pattern.png',
+            ), // Add background pattern
+            fit: BoxFit.none, // Make the pattern smaller
+            repeat: ImageRepeat.repeat, // Repeat the pattern
+            opacity: 0.2, // Increase transparency
+            scale: 3.0, // Scale down the pattern
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            // Added SingleChildScrollView
+            padding: const EdgeInsets.all(16.0), // Added padding
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center, // Center content
+              children: [
+                _buildWelcomeText(),
+                const SizedBox(height: 100),
+                _buildActionButtons(context, authState),
+              ],
+            ),
           ),
         ),
       ),

@@ -39,19 +39,13 @@ class _ProfileState extends ConsumerState<Profile> {
         ref.read(studentProvider.notifier).setStudent(student);
       } else {
         setState(() {
-          _error = 'Student not found.';
+          _error = 'No student found. Please check the ID.';
         });
       }
-    } on Exception catch (e) {
-      if (e.toString().contains('Student not found')) {
-        setState(() {
-          _error = 'Student not found.';
-        });
-      } else {
-        setState(() {
-          _error = 'Failed to fetch student details: $e';
-        });
-      }
+    } catch (_) {
+      setState(() {
+        _error = 'Failed to fetch details. Please check the ID.';
+      });
     } finally {
       setState(() {
         _isLoading = false;
@@ -63,7 +57,7 @@ class _ProfileState extends ConsumerState<Profile> {
     setState(() {
       _isLoading = true;
       _error = null;
-      _isRankFetched = false; // Reset the flag before fetching
+      _isRankFetched = false;
     });
 
     try {
@@ -79,19 +73,18 @@ class _ProfileState extends ConsumerState<Profile> {
       if (rank > 0) {
         setState(() {
           _profileRank = rank;
-          _peopleAhead = rank - 1; // People ahead are rank - 1
-          _peopleBehind =
-              students.length - rank; // People behind are total - rank
-          _isRankFetched = true; // Set the flag to true after fetching
+          _peopleAhead = rank - 1;
+          _peopleBehind = students.length - rank;
+          _isRankFetched = true;
         });
       } else {
         setState(() {
-          _error = 'Rank not found.';
+          _error = 'Rank not found. Please check the ID.';
         });
       }
-    } catch (e) {
+    } catch (_) {
       setState(() {
-        _error = 'Failed to fetch rank: $e';
+        _error = 'Failed to fetch rank. Please try again.';
       });
     } finally {
       setState(() {
@@ -208,246 +201,217 @@ class _ProfileState extends ConsumerState<Profile> {
         return FutureBuilder<Map<String, dynamic>?>(
           future: _fetchProfileData(student?.id ?? ''),
           builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error loading profile data: ${snapshot.error}',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            }
+
             final profileData = snapshot.data ?? {};
             final profilePictureUrl = profileData['profilePictureUrl'] ?? '';
             final bio = profileData['bio'] ?? 'No bio available';
 
             return Scaffold(
               backgroundColor: AppColors.primaryBgColor,
-              body: Center(
-                child:
-                    student == null
-                        ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            RichText(
-                              // Updated to use RichText for styling "Load" and "Profile"
-                              text: TextSpan(
-                                text: 'Load ',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      AppColors
-                                          .primaryTextColor, // "Load" uses primary text color
+              body: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/bg-pattern.png'),
+                    fit: BoxFit.none,
+                    repeat: ImageRepeat.repeat,
+                    opacity: 0.2,
+                    scale: 3.0,
+                  ),
+                ),
+                child: Center(
+                  child:
+                      student == null
+                          ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              RichText(
+                                // Updated to use RichText for styling "Load" and "Profile"
+                                text: TextSpan(
+                                  text: 'Load ',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        AppColors
+                                            .primaryTextColor, // "Load" uses primary text color
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: 'Profile',
+                                      style: TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            AppColors
+                                                .secondaryAccentColor, // "Profile" uses secondary accent color
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              ),
+                              const SizedBox(
+                                height: 24,
+                              ), // Added spacing below the text
+                              Stack(
                                 children: [
-                                  TextSpan(
-                                    text: 'Profile',
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          AppColors
-                                              .secondaryAccentColor, // "Profile" uses secondary accent color
+                                  SizedBox(
+                                    // Added SizedBox to control width
+                                    width:
+                                        MediaQuery.of(context).size.width *
+                                        0.8, // Set width to 80% of screen
+                                    child: TextField(
+                                      controller: _studentIdController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Enter Student ID',
+                                        hintStyle: const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 12,
+                                            ), // Added padding
+                                        border: OutlineInputBorder(
+                                          // Added rounded border
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          borderSide:
+                                              BorderSide
+                                                  .none, // No visible border
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                      ),
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    bottom: 0,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AppColors.secondaryAccentColor,
+                                        foregroundColor:
+                                            AppColors.primaryBgColor,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed:
+                                          _isLoading
+                                              ? null
+                                              : () {
+                                                final studentId =
+                                                    _studentIdController.text
+                                                        .trim();
+                                                if (studentId.isNotEmpty) {
+                                                  _fetchStudentDetails(
+                                                    studentId,
+                                                  );
+                                                }
+                                              },
+                                      child:
+                                          _isLoading
+                                              ? const CircularProgressIndicator(
+                                                color: Colors.white,
+                                              )
+                                              : const Icon(
+                                                Icons.search,
+                                                size: 20,
+                                              ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(
-                              height: 24,
-                            ), // Added spacing below the text
-                            Stack(
-                              children: [
-                                SizedBox(
-                                  // Added SizedBox to control width
-                                  width:
-                                      MediaQuery.of(context).size.width *
-                                      0.8, // Set width to 80% of screen
-                                  child: TextField(
-                                    controller: _studentIdController,
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter Student ID',
-                                      hintStyle: const TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 12,
-                                          ), // Added padding
-                                      border: OutlineInputBorder(
-                                        // Added rounded border
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide:
-                                            BorderSide
-                                                .none, // No visible border
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                    ),
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  bottom: 0,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          AppColors.secondaryAccentColor,
-                                      foregroundColor: AppColors.primaryBgColor,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    onPressed:
-                                        _isLoading
-                                            ? null
-                                            : () {
-                                              final studentId =
-                                                  _studentIdController.text
-                                                      .trim();
-                                              if (studentId.isNotEmpty) {
-                                                _fetchStudentDetails(studentId);
-                                              }
-                                            },
-                                    child:
-                                        _isLoading
-                                            ? const CircularProgressIndicator(
-                                              color: Colors.white,
-                                            )
-                                            : const Icon(
-                                              Icons.search,
-                                              size: 20,
-                                            ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (_error != null) ...[
-                              const SizedBox(height: 16),
-                              Text(
-                                _error!,
-                                style: const TextStyle(
-                                  color:
-                                      AppColors
-                                          .secondaryAccentColor, // Changed to secondary accent color
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ],
-                        )
-                        : SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                CircleAvatar(
-                                  radius: 60,
-                                  backgroundImage:
-                                      profilePictureUrl.isNotEmpty
-                                          ? NetworkImage(profilePictureUrl)
-                                          : const AssetImage(
-                                                'assets/profile.png',
-                                              )
-                                              as ImageProvider,
-                                  onBackgroundImageError: (_, __) {
-                                    debugPrint(
-                                      'Error loading profile picture asset.',
-                                    );
-                                  },
-                                  backgroundColor: AppColors.primaryAccentColor,
-                                ),
+                              if (_error != null) ...[
                                 const SizedBox(height: 16),
                                 Text(
-                                  student.name,
-                                  style: TextStyle(
-                                    fontSize: 26,
+                                  _error!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.primaryTextColor,
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  bio,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.primaryTextColor,
-                                  ),
                                 ),
-                                const SizedBox(height: 24),
-                                Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                              ],
+                            ],
+                          )
+                          : SingleChildScrollView(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 60,
+                                    backgroundImage:
+                                        profilePictureUrl.isNotEmpty
+                                            ? NetworkImage(profilePictureUrl)
+                                            : const AssetImage(
+                                                  'assets/profile.png',
+                                                )
+                                                as ImageProvider,
+                                    onBackgroundImageError: (_, __) {
+                                      debugPrint(
+                                        'Error loading profile picture asset.',
+                                      );
+                                    },
+                                    backgroundColor:
+                                        AppColors.primaryAccentColor,
                                   ),
-                                  elevation: 6,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Student Details',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        const Divider(thickness: 1.5),
-                                        const SizedBox(height: 8),
-                                        _buildDetailRow(
-                                          'Student ID',
-                                          student.id,
-                                        ),
-                                        _buildDetailRow(
-                                          'Department',
-                                          student.department,
-                                        ),
-                                        _buildDetailRow(
-                                          'Batch',
-                                          student.batch.toString(),
-                                        ),
-                                        _buildDetailRow(
-                                          'Section',
-                                          student.section,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        const Text(
-                                          'Academic Details',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        const Divider(thickness: 1.5),
-                                        const SizedBox(height: 8),
-                                        _buildDetailRow(
-                                          'CGPA',
-                                          student.result.toString(),
-                                        ),
-                                        if (_profileRank != null) ...[
-                                          _buildDetailRow(
-                                            'Rank',
-                                            _profileRank.toString(),
-                                          ), // Only display rank text
-                                          _buildDetailRow(
-                                            'People Ahead',
-                                            _peopleAhead.toString(),
-                                          ),
-                                          _buildDetailRow(
-                                            'People Behind',
-                                            _peopleBehind.toString(),
-                                          ),
-                                        ],
-                                        if (_profileRank != null &&
-                                            _isRankFetched) ...[
-                                          const SizedBox(height: 16),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    student.name,
+                                    style: TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryTextColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    bio,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.primaryTextColor,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 6,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
                                           const Text(
-                                            'Badges',
+                                            'Student Details',
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -456,196 +420,298 @@ class _ProfileState extends ConsumerState<Profile> {
                                           ),
                                           const Divider(thickness: 1.5),
                                           const SizedBox(height: 8),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              if (_profileRank == 1) ...[
-                                                Column(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.star,
-                                                      color: Colors.yellow,
-                                                      size: 40,
-                                                    ), // Rank 1 badge
-                                                    const SizedBox(height: 4),
-                                                    const Text(
-                                                      'Rank 1',
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.black87,
+                                          _buildDetailRow(
+                                            'Student ID',
+                                            student.id,
+                                          ),
+                                          _buildDetailRow(
+                                            'Department',
+                                            student.department,
+                                          ),
+                                          _buildDetailRow(
+                                            'Batch',
+                                            student.batch.toString(),
+                                          ),
+                                          _buildDetailRow(
+                                            'Section',
+                                            student.section,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Academic Details',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const Divider(thickness: 1.5),
+                                          const SizedBox(height: 8),
+                                          _buildDetailRow(
+                                            'CGPA',
+                                            student.result.toString(),
+                                          ),
+                                          if (_profileRank != null) ...[
+                                            _buildDetailRow(
+                                              'Rank',
+                                              _profileRank.toString(),
+                                            ), // Only display rank text
+                                            _buildDetailRow(
+                                              'People Ahead',
+                                              _peopleAhead.toString(),
+                                            ),
+                                            _buildDetailRow(
+                                              'People Behind',
+                                              _peopleBehind.toString(),
+                                            ),
+                                          ],
+                                          if (_profileRank != null &&
+                                              _isRankFetched) ...[
+                                            const SizedBox(height: 16),
+                                            const Text(
+                                              'Badges',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            const Divider(thickness: 1.5),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                if (_profileRank == 1) ...[
+                                                  Column(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.star,
+                                                        color: Colors.yellow,
+                                                        size: 40,
+                                                      ), // Rank 1 badge
+                                                      const SizedBox(height: 4),
+                                                      const Text(
+                                                        'Rank 1',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black87,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(width: 16),
-                                              ],
-                                              if (_profileRank! <=
-                                                  (_peopleAhead! +
-                                                          _peopleBehind! +
-                                                          1) *
-                                                      0.1) ...[
-                                                Column(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.emoji_events,
-                                                      color: Colors.orange,
-                                                      size: 40,
-                                                    ), // Top 10% badge
-                                                    const SizedBox(height: 4),
-                                                    const Text(
-                                                      'Top 10%',
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.black87,
+                                                    ],
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                ],
+                                                if (_profileRank! <=
+                                                    (_peopleAhead! +
+                                                            _peopleBehind! +
+                                                            1) *
+                                                        0.1) ...[
+                                                  Column(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.emoji_events,
+                                                        color: Colors.orange,
+                                                        size: 40,
+                                                      ), // Top 10% badge
+                                                      const SizedBox(height: 4),
+                                                      const Text(
+                                                        'Top 10%',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black87,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
+                                                    ],
+                                                  ),
+                                                ],
                                               ],
-                                            ],
+                                            ),
+                                            const SizedBox(height: 16),
+                                          ],
+                                          const SizedBox(height: 16),
+                                          if (!_isRankFetched) // Only show the button if rank is not fetched
+                                            Center(
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors
+                                                          .transparent, // Transparent background
+                                                  elevation: 0, // Remove shadow
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 8,
+                                                      ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                    side: BorderSide(
+                                                      color:
+                                                          AppColors
+                                                              .secondaryAccentColor, // Border color
+                                                    ),
+                                                  ),
+                                                ),
+                                                onPressed:
+                                                    _isLoading
+                                                        ? null
+                                                        : () {
+                                                          if (student != null) {
+                                                            _fetchRank(
+                                                              student.id,
+                                                            );
+                                                          }
+                                                        },
+                                                child:
+                                                    _isLoading
+                                                        ? const CircularProgressIndicator(
+                                                          color:
+                                                              AppColors
+                                                                  .secondaryAccentColor,
+                                                        )
+                                                        : Text(
+                                                          'Fetch Rank',
+                                                          style: TextStyle(
+                                                            color:
+                                                                AppColors
+                                                                    .secondaryAccentColor, // Text color
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                              ),
+                                            ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Achievements',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const Divider(thickness: 1.5),
+                                          const SizedBox(height: 8),
+                                          _buildDetailRow(
+                                            'Achievement Points',
+                                            student.achievement.toString(),
+                                          ),
+                                          _buildDetailRow(
+                                            'Extracurricular',
+                                            student.extracurricular,
+                                          ),
+                                          _buildDetailRow(
+                                            'Co-Curriculum',
+                                            student.coCurriculum,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          AppColors
+                                              .secondaryAccentColor, // Use secondary accent color
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 32,
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      final shouldReload = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => ProfileUpdate(
+                                                studentId: student.id,
+                                              ),
+                                        ),
+                                      );
+                                      if (shouldReload == true) {
+                                        setState(
+                                          () {},
+                                        ); // Reload the profile data
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Update Profile',
+                                      style: TextStyle(
+                                        color:
+                                            Colors
+                                                .white, // White text for contrast
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        if (authData?['profileId'] == null) ...[
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primaryAccentColor,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 14,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                            onPressed: () async {
+                                              if (student != null) {
+                                                await _bindProfileToAccount(
+                                                  student.id,
+                                                );
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Profile bound to account successfully!',
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: const Text(
+                                              'Bind Profile to Account',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                            ),
                                           ),
                                           const SizedBox(height: 16),
                                         ],
-                                        const SizedBox(height: 16),
-                                        if (!_isRankFetched) // Only show the button if rank is not fetched
-                                          Center(
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors
-                                                        .transparent, // Transparent background
-                                                elevation: 0, // Remove shadow
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  side: BorderSide(
-                                                    color:
-                                                        AppColors
-                                                            .secondaryAccentColor, // Border color
-                                                  ),
-                                                ),
-                                              ),
-                                              onPressed:
-                                                  _isLoading
-                                                      ? null
-                                                      : () {
-                                                        if (student != null) {
-                                                          _fetchRank(
-                                                            student.id,
-                                                          );
-                                                        }
-                                                      },
-                                              child:
-                                                  _isLoading
-                                                      ? const CircularProgressIndicator(
-                                                        color:
-                                                            AppColors
-                                                                .secondaryAccentColor,
-                                                      )
-                                                      : Text(
-                                                        'Fetch Rank',
-                                                        style: TextStyle(
-                                                          color:
-                                                              AppColors
-                                                                  .secondaryAccentColor, // Text color
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
-                                            ),
-                                          ),
-                                        const SizedBox(height: 16),
-                                        const Text(
-                                          'Achievements',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        const Divider(thickness: 1.5),
-                                        const SizedBox(height: 8),
-                                        _buildDetailRow(
-                                          'Achievement Points',
-                                          student.achievement.toString(),
-                                        ),
-                                        _buildDetailRow(
-                                          'Extracurricular',
-                                          student.extracurricular,
-                                        ),
-                                        _buildDetailRow(
-                                          'Co-Curriculum',
-                                          student.coCurriculum,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppColors
-                                            .secondaryAccentColor, // Use secondary accent color
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    final shouldReload = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ProfileUpdate(
-                                              studentId: student.id,
-                                            ),
-                                      ),
-                                    );
-                                    if (shouldReload == true) {
-                                      setState(
-                                        () {},
-                                      ); // Reload the profile data
-                                    }
-                                  },
-                                  child: const Text(
-                                    'Update Profile',
-                                    style: TextStyle(
-                                      color:
-                                          Colors
-                                              .white, // White text for contrast
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16.0,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      if (authData?['profileId'] == null) ...[
                                         ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
-                                                AppColors.primaryAccentColor,
+                                                student != null
+                                                    ? Colors.redAccent
+                                                    : AppColors
+                                                        .primaryAccentColor,
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 14,
                                             ),
@@ -656,111 +722,79 @@ class _ProfileState extends ConsumerState<Profile> {
                                           ),
                                           onPressed: () async {
                                             if (student != null) {
-                                              await _bindProfileToAccount(
-                                                student.id,
-                                              );
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'Profile bound to account successfully!',
+                                              if (authData?['profileId'] !=
+                                                  null) {
+                                                await _unbindProfileFromAccount();
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Profile unbound from account successfully!',
+                                                    ),
                                                   ),
-                                                ),
-                                              );
+                                                );
+                                              } else {
+                                                ref
+                                                    .read(
+                                                      studentProvider.notifier,
+                                                    )
+                                                    .clearStudent();
+                                                setState(() {
+                                                  _profileRank = null;
+                                                  _peopleAhead = null;
+                                                  _peopleBehind = null;
+                                                  _error = null;
+                                                });
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Profile unloaded successfully!',
+                                                    ),
+                                                  ),
+                                                );
+                                              }
                                             }
                                           },
-                                          child: const Text(
-                                            'Bind Profile to Account',
-                                            style: TextStyle(
+                                          child: Text(
+                                            authData?['profileId'] != null
+                                                ? 'Unbind Account'
+                                                : 'Unload Profile',
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 16,
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(height: 16),
                                       ],
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              student != null
-                                                  ? Colors.redAccent
-                                                  : AppColors
-                                                      .primaryAccentColor,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 14,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                        ),
-                                        onPressed: () async {
-                                          if (student != null) {
-                                            if (authData?['profileId'] !=
-                                                null) {
-                                              await _unbindProfileFromAccount();
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'Profile unbound from account successfully!',
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              ref
-                                                  .read(
-                                                    studentProvider.notifier,
-                                                  )
-                                                  .clearStudent();
-                                              setState(() {
-                                                _profileRank = null;
-                                                _peopleAhead = null;
-                                                _peopleBehind = null;
-                                                _error = null;
-                                              });
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'Profile unloaded successfully!',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          }
-                                        },
-                                        child: Text(
-                                          authData?['profileId'] != null
-                                              ? 'Unbind Account'
-                                              : 'Unload Profile',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 32,
-                                ), // Add spacing at the bottom
-                              ],
+                                  const SizedBox(
+                                    height: 32,
+                                  ), // Add spacing at the bottom
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                ),
               ),
             );
           },
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Error: $error')),
+      error:
+          (error, _) => Center(
+            child: Text(
+              'An error occurred: $error',
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
     );
   }
 
