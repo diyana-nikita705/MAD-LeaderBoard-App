@@ -57,10 +57,7 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
   Future<void> _fetchStudents({bool reset = false}) async {
     if (_isLoading) return;
     if (reset) {
-      setState(() {
-        _students.clear();
-        _lastDoc = null;
-      });
+      _resetStudentList();
     }
     setState(() {
       _isLoading = true;
@@ -90,6 +87,13 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
         _isLoading = false;
       });
     }
+  }
+
+  void _resetStudentList() {
+    setState(() {
+      _students.clear();
+      _lastDoc = null;
+    });
   }
 
   void _showFilterOptions() {
@@ -240,250 +244,286 @@ class _LeaderboardContentState extends ConsumerState<_LeaderboardContent> {
                       width:
                           MediaQuery.of(context).size.width *
                           0.95, // Reduce width to 95% of the screen
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: DataTable(
-                              columnSpacing:
-                                  constraints.maxWidth /
-                                  12, // Adjust column spacing dynamically
-                              headingRowColor: MaterialStateProperty.all(
-                                AppColors.secondaryAccentColor.withOpacity(
-                                  0.8,
-                                ), // Subtle heading color
-                              ),
-                              dataRowColor: MaterialStateProperty.all(
-                                AppColors.primaryBgColor.withOpacity(
-                                  0.9,
-                                ), // Subtle row color
-                              ),
-                              border: TableBorder.all(
-                                color: AppColors.secondaryAccentColor
-                                    .withOpacity(0.5), // Subtle border
-                                width: 1.0,
-                              ),
-                              columns: const [
-                                DataColumn(
-                                  label: Text(
-                                    'Rank',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14.0, // Slightly larger font
-                                    ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(
+                          12.0,
+                        ), // Rounded corners
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(
+                              0.1,
+                            ), // Subtle shadow
+                            blurRadius: 8.0,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: AppColors.secondaryAccentColor.withOpacity(
+                            0.5,
+                          ), // Border color
+                          width: 1.0,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          12.0,
+                        ), // Ensure table respects corners
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: DataTable(
+                                columnSpacing:
+                                    constraints.maxWidth /
+                                    12, // Adjust column spacing dynamically
+                                headingRowColor: MaterialStateProperty.all(
+                                  AppColors
+                                      .secondaryAccentColor, // Remove opacity for brighter header
+                                ),
+                                dataRowColor: MaterialStateProperty.resolveWith<
+                                  Color?
+                                >((Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.selected)) {
+                                    return AppColors.secondaryAccentColor
+                                        .withOpacity(0.2);
+                                  }
+                                  return Colors
+                                      .grey[100]; // Alternating row color
+                                }),
+                                border: TableBorder(
+                                  horizontalInside: BorderSide(
+                                    color: AppColors.secondaryAccentColor
+                                        .withOpacity(0.5),
+                                    width: 0.5,
                                   ),
                                 ),
-                                DataColumn(
-                                  label: Text(
-                                    'Name',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14.0,
+                                columns: const [
+                                  DataColumn(
+                                    label: Text(
+                                      'Rank',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.0, // Slightly larger font
+                                      ),
                                     ),
                                   ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    'CGPA',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14.0,
+                                  DataColumn(
+                                    label: Text(
+                                      'Name',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.0,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                              rows:
-                                  _students.asMap().entries.map((entry) {
-                                    final index = entry.key;
-                                    final student = entry.value;
-                                    return DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(
-                                            '${index + 1}',
-                                            style: TextStyle(
-                                              color:
-                                                  Colors
-                                                      .black87, // Subtle text color
-                                              fontSize: 13.0,
+                                  DataColumn(
+                                    label: Text(
+                                      'CGPA',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows:
+                                    _students.asMap().entries.map((entry) {
+                                      final index = entry.key;
+                                      final student = entry.value;
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(
+                                            Text(
+                                              '${index + 1}',
+                                              style: TextStyle(
+                                                color:
+                                                    Colors
+                                                        .black87, // Subtle text color
+                                                fontSize: 13.0,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        DataCell(
-                                          InkWell(
-                                            onTap: () {
-                                              final isAnonymous =
-                                                  (student.doc.data()
-                                                      as Map<
-                                                        String,
-                                                        dynamic
-                                                      >)['locked'] ==
-                                                  true;
-                                              showModalBottomSheet(
-                                                context: context,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.vertical(
-                                                        top: Radius.circular(
-                                                          16.0,
-                                                        ),
-                                                      ), // Rounded top corners
+                                          DataCell(
+                                            InkWell(
+                                              onTap: () {
+                                                final isAnonymous =
+                                                    (student.doc.data()
+                                                        as Map<
+                                                          String,
+                                                          dynamic
+                                                        >)['locked'] ==
+                                                    true;
+                                                showModalBottomSheet(
+                                                  context: context,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.vertical(
+                                                          top: Radius.circular(
+                                                            16.0,
+                                                          ),
+                                                        ), // Rounded top corners
+                                                  ),
+                                                  backgroundColor: AppColors
+                                                      .primaryBgColor
+                                                      .withOpacity(
+                                                        0.95,
+                                                      ), // Subtle background
+                                                  builder: (context) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            16.0,
+                                                          ),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Text(
+                                                                'Details for ${isAnonymous ? 'Anonymous' : student.name}',
+                                                                style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize:
+                                                                      20.0,
+                                                                  color:
+                                                                      AppColors
+                                                                          .secondaryAccentColor, // Accent color for title
+                                                                ),
+                                                              ),
+                                                              IconButton(
+                                                                icon: Icon(
+                                                                  Icons.close,
+                                                                  color:
+                                                                      Colors
+                                                                          .grey,
+                                                                ),
+                                                                onPressed:
+                                                                    () => Navigator.pop(
+                                                                      context,
+                                                                    ), // Close button
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Divider(
+                                                            thickness: 1.0,
+                                                            color:
+                                                                Colors
+                                                                    .grey[300],
+                                                          ), // Add a divider
+                                                          SizedBox(height: 8.0),
+                                                          _buildDetailRow(
+                                                            'ID',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student.id
+                                                                    .toString(),
+                                                          ),
+                                                          _buildDetailRow(
+                                                            'Department',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student
+                                                                    .department
+                                                                    .toString(),
+                                                          ),
+                                                          _buildDetailRow(
+                                                            'Batch',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student.batch
+                                                                    .toString(),
+                                                          ),
+                                                          _buildDetailRow(
+                                                            'Section',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student
+                                                                    .section
+                                                                    .toString(),
+                                                          ),
+                                                          _buildDetailRow(
+                                                            'Result',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student.result
+                                                                    .toString(),
+                                                          ),
+                                                          SizedBox(height: 8.0),
+                                                          _buildDetailSection(
+                                                            'Achievements',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student
+                                                                    .achievement
+                                                                    .toString(),
+                                                          ),
+                                                          _buildDetailSection(
+                                                            'Extracurricular',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student
+                                                                    .extracurricular
+                                                                    .toString(),
+                                                          ),
+                                                          _buildDetailSection(
+                                                            'Co-curriculum',
+                                                            isAnonymous
+                                                                ? 'Hidden'
+                                                                : student
+                                                                    .coCurriculum
+                                                                    .toString(),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              child: Text(
+                                                (student.doc.data()
+                                                            as Map<
+                                                              String,
+                                                              dynamic
+                                                            >)['locked'] ==
+                                                        true
+                                                    ? 'Anonymous'
+                                                    : student.name,
+                                                style: TextStyle(
+                                                  color: Colors.black87,
+                                                  fontSize: 13.0,
                                                 ),
-                                                backgroundColor: AppColors
-                                                    .primaryBgColor
-                                                    .withOpacity(
-                                                      0.95,
-                                                    ), // Subtle background
-                                                builder: (context) {
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          16.0,
-                                                        ),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Text(
-                                                              'Details for ${isAnonymous ? 'Anonymous' : student.name}',
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 20.0,
-                                                                color:
-                                                                    AppColors
-                                                                        .secondaryAccentColor, // Accent color for title
-                                                              ),
-                                                            ),
-                                                            IconButton(
-                                                              icon: Icon(
-                                                                Icons.close,
-                                                                color:
-                                                                    Colors.grey,
-                                                              ),
-                                                              onPressed:
-                                                                  () => Navigator.pop(
-                                                                    context,
-                                                                  ), // Close button
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        Divider(
-                                                          thickness: 1.0,
-                                                          color:
-                                                              Colors.grey[300],
-                                                        ), // Add a divider
-                                                        SizedBox(height: 8.0),
-                                                        _buildDetailRow(
-                                                          'ID',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student.id
-                                                                  .toString(),
-                                                        ),
-                                                        _buildDetailRow(
-                                                          'Department',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student
-                                                                  .department
-                                                                  .toString(),
-                                                        ),
-                                                        _buildDetailRow(
-                                                          'Batch',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student.batch
-                                                                  .toString(),
-                                                        ),
-                                                        _buildDetailRow(
-                                                          'Section',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student.section
-                                                                  .toString(),
-                                                        ),
-                                                        _buildDetailRow(
-                                                          'Result',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student.result
-                                                                  .toString(),
-                                                        ),
-                                                        SizedBox(height: 8.0),
-                                                        _buildDetailSection(
-                                                          'Achievements',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student
-                                                                  .achievement
-                                                                  .toString(),
-                                                        ),
-                                                        _buildDetailSection(
-                                                          'Extracurricular',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student
-                                                                  .extracurricular
-                                                                  .toString(),
-                                                        ),
-                                                        _buildDetailSection(
-                                                          'Co-curriculum',
-                                                          isAnonymous
-                                                              ? 'Hidden'
-                                                              : student
-                                                                  .coCurriculum
-                                                                  .toString(),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            child: Text(
-                                              (student.doc.data()
-                                                          as Map<
-                                                            String,
-                                                            dynamic
-                                                          >)['locked'] ==
-                                                      true
-                                                  ? 'Anonymous'
-                                                  : student.name,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              student.result.toString(),
                                               style: TextStyle(
                                                 color: Colors.black87,
                                                 fontSize: 13.0,
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            student.result.toString(),
-                                            style: TextStyle(
-                                              color: Colors.black87,
-                                              fontSize: 13.0,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
-                            ),
-                          );
-                        },
+                                        ],
+                                      );
+                                    }).toList(),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
